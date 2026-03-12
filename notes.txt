@@ -1,0 +1,58 @@
+
+# Quick “do this now” checklist (most common)
+eas login
+eas build:configure
+eas build -p android --profile preview (first cloud build)
+eas update:configure
+eas update --channel preview --message "test" (push updates to that build)
+
+?
+eas build -p android --profile preview --clear-cache
+
+For ios
+eas build -p ios --profile production
+eas submit -p ios --latest
+
+
+
+| Command         | What it means                    |
+| --------------- | -------------------------------- |
+| `expo start`    | Start dev server                 |
+| `expo start -c` | Start dev server + wipe JS cache |
+| `eas build`     | Build native app                 |
+| `eas update`    | Push OTA JS update               |
+
+# 1) Build in Expo cloud (shows on expo.dev) From the app folder:
+npm i -g eas-cli
+eas login
+eas build:configure
+
+# Then build: Android (test/preview build)
+eas build -p android --profile preview
+
+# Android (production / store-ready build)
+eas build -p android --profile production
+
+# iOS (preview / production)
+eas build -p ios --profile preview
+eas build -p ios --profile production
+
+# These builds appear in your Expo dashboard under Builds.
+##################################################################################
+# 2) “Deploy to Expo” as an OTA update (push JS updates)
+
+# First time setup:
+eas update:configure
+
+# Then publish an update:
+eas update --channel preview --message "QA update"
+# or
+eas update --channel production --message "Prod hotfix"
+
+# Channels are what your builds subscribe to (preview vs production).
+#################################################################################################
+#3) Submit to Play Store / App Store (optional next step)
+
+# After you have production builds:
+eas submit -p android --profile production
+eas submit -p ios --profile production

@@ -1,0 +1,33 @@
+
+TODO:
+
+Add auth-gated features (save favourite course)
+🇬🇧 Country filter chips (UK / Ireland / Europe)
+
+⭐ Favourite courses (auth-gated)
+
+🗺 “Near me” using GPS
+
+
+Optional: show a success toast-like message (register)
+
+
+
+
+Lock down content
+
+    Make Courses require login
+
+    Leave About/Rules public
+
+Profile screen
+
+    View/edit display name, country
+
+Token refresh hardening
+
+    Silent refresh on 401
+
+Consent versioning
+
+    Store consent version + show “updated terms” banner later
