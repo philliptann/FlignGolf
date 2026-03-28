@@ -5,12 +5,13 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { useRoute } from "@react-navigation/native";
 import {
   cancelRound,
@@ -36,11 +37,11 @@ export default function RoundPlayScreen() {
     try {
       setLoading(true);
       const data = await getRoundDetail(roundId);
-      console.log("Round detail response:", JSON.stringify(data, null, 2));
+      //console.log("Round detail response:", JSON.stringify(data, null, 2));
       setRound(data);
     } catch (error) {
       Alert.alert("Error", "Failed to load round.");
-      console.log("Failed to load round:", error);
+      //console.log("Failed to load round:", error);
 
     } finally {
       setLoading(false);
@@ -117,8 +118,42 @@ export default function RoundPlayScreen() {
         />
       </View>
 
-
         <Text>Date: {playRound.datePlayed}</Text>
+    
+        <View
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 12,
+            padding: 16,
+            marginTop: 12,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: "#e5e7eb",
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 10 }}>
+            Players
+          </Text>
+
+          {playRound.players.map((player) => (
+            <View
+              key={player.id}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
+              <Text>{player.name}</Text>
+              <Text style={{ fontWeight: "600" }}>
+                {round.scoring_format === "stableford"
+                  ? `${player.totalPoints ?? 0} pts`
+                  : `${player.totalScore ?? "-"}`
+                }
+              </Text>
+            </View>
+          ))}
+        </View>
 
         <View style={{ flexDirection: "row", gap: 8, marginTop: 16, marginBottom: 20 }}>
           {round.status === "draft" && (
@@ -154,48 +189,66 @@ export default function RoundPlayScreen() {
             This round is locked and can no longer be edited.
           </Text>
         )}
-
         {playRound.holes.map((hole) => (
-          <View
-            key={hole.holeNumber}
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 12,
-              borderWidth: 1,
-              borderColor: "#e5e7eb",
-            }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}>
-              Hole {hole.holeNumber}
-            </Text>
+        <View
+          key={hole.holeNumber}
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 12,
+            borderWidth: 1,
+            borderColor: "#e5e7eb",
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 4 }}>
+            Hole {hole.holeNumber}
+          </Text>
 
-            {hole.playerScores.map((score) => (
-              <View key={score.holeScoreId} style={{ marginBottom: 12 }}>
-                <Text style={{ fontWeight: "600", marginBottom: 6 }}>{score.playerName}</Text>
-                <Text style={{ marginBottom: 6 }}>Par: {score.par ?? "-"}</Text>
+          <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 12 }}>
+            Par {hole.playerScores[0]?.par ?? "-"}
+          </Text>
 
-                <TextInput
-                  defaultValue={score.strokes != null ? String(score.strokes) : ""}
-                  editable={!locked && savingId !== score.holeScoreId}
-                  keyboardType="number-pad"
-                  placeholder="Strokes"
-                  onEndEditing={(e) =>
-                    handleUpdateScore(score.holeScoreId, e.nativeEvent.text)
-                  }
-                  style={{
-                    borderWidth: 1,
-                    borderColor: "#d1d5db",
-                    borderRadius: 8,
-                    padding: 10,
-                    backgroundColor: locked ? "#f3f4f6" : "#fff",
-                  }}
-                />
+          {hole.playerScores.map((score) => (
+            <View
+              key={score.holeScoreId}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 10,
+                gap: 12,
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: "600" }}>{score.playerName}</Text>
               </View>
-            ))}
-          </View>
-        ))}
+
+              <TextInput
+                defaultValue={score.strokes != null ? String(score.strokes) : ""}
+                editable={!locked && savingId !== score.holeScoreId}
+                keyboardType="number-pad"
+                placeholder="-"
+                onEndEditing={(e) =>
+                  handleUpdateScore(score.holeScoreId, e.nativeEvent.text)
+                }
+                style={{
+                  width: 72,
+                  borderWidth: 1,
+                  borderColor: "#d1d5db",
+                  borderRadius: 8,
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
+                  textAlign: "center",
+                  backgroundColor: locked ? "#f3f4f6" : "#fff",
+                  fontWeight: "600",
+                }}
+              />
+            </View>
+          ))}
+        </View>
+      ))}
+       
       </ScrollView>
     </SafeAreaView>
   );

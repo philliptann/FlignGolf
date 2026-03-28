@@ -82,7 +82,7 @@ async function request<T>(
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  console.log(method, url);
+  //console.log(method, url);
 
   const res = await safeFetch(url, {
     method,

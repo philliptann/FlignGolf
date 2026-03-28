@@ -45,7 +45,7 @@ export default function RoundHistoryScreen() {
 
       setRounds((data.results ?? []).map(mapRoundListItem));
     } catch (err: any) {
-      console.log("Failed to load rounds:", err);
+     // console.log("Failed to load rounds:", err);
       setError("Failed to load rounds.");
     } finally {
       setLoading(false);
