@@ -1,5 +1,14 @@
+TOKEN=$(curl -s https://flinggolfclub.com/api/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"YOUR_PASSWORD"}' | jq -r .access)
 
-# Quick “do this now” checklist (most common)
+curl -i "https://flinggolfclub.com/api/rounds/8/" \
+  -H "Authorization: Bearer $TOKEN"
+
+
+
+
+ Quick “do this now” checklist (most common)
 eas login
 eas build:configure
 eas build -p android --profile preview (first cloud build)

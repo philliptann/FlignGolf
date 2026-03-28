@@ -1,4 +1,4 @@
-//client.ts
+// src/api/client.ts
 import { getAccessToken, getRefreshToken, setAccessToken } from "../auth/tokenStore";
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE_URL!;
@@ -11,7 +11,8 @@ export type ApiErrorCode =
   | "SERVER_ERROR"
   | "UNAUTHENTICATED"
   | "BAD_REQUEST"
-  | "UNKNOWN_ERROR";
+  | "UNKNOWN_ERROR"
+  | "REQUEST_TIMEOUT";
 
 async function safeFetch(input: RequestInfo, init?: RequestInit, timeoutMs = 12000) {
   const controller = new AbortController();
@@ -20,8 +21,8 @@ async function safeFetch(input: RequestInfo, init?: RequestInit, timeoutMs = 120
   try {
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (e: any) {
-    if (e?.name === "AbortError") throw new Error("NETWORK_ERROR"); // treat timeout as network
-    throw new Error("NETWORK_ERROR");
+    if (e?.name === "AbortError") throw new Error("REQUEST_TIMEOUT");
+    throw new Error(`NETWORK_ERROR: ${e?.message || "fetch failed"}`);
   } finally {
     clearTimeout(t);
   }
@@ -113,8 +114,8 @@ export async function apiGet<T>(path: string): Promise<T> {
   return request<T>("GET", path);
 }
 
-export async function apiPostJson<T>(path: string, body: Record<string, unknown>): Promise<T> {
-  return request<T>("POST", path, body);
+export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
+  return request<T>("POST", path, body as Json);
 }
 
 export async function apiPatchJson<T>(path: string, body: any): Promise<T> {

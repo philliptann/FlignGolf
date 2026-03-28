@@ -1,9 +1,10 @@
-// AppNavigator.tsx
+// src/navigation/AppNavigator.tsx
+
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, View,Pressable, Text } from "react-native";
+import { ActivityIndicator, View, Pressable, Text } from "react-native";
 
 import AboutScreen from "../screens/AboutScreen";
 import RulesScreen from "../screens/RulesScreen";
@@ -12,10 +13,14 @@ import CourseDetailScreen from "../screens/CourseDetailScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import RoundHistoryScreen from "../screens/rounds/RoundHistoryScreen";
+import RoundPlayScreen from "../screens/rounds/RoundPlayScreen";
 import { contentStyles as styles } from "../styles/contentStyles";
 import HomeHeaderTitle from "../components/HomeHeaderTitle";
 
 import { useAuth } from "../auth/AuthContext";
+
+import RoundCreateScreen from "../screens/rounds/RoundCreateScreen";
 
 const Tab = createBottomTabNavigator();
 const CoursesStack = createNativeStackNavigator();
@@ -27,13 +32,29 @@ function CoursesStackScreen() {
       <CoursesStack.Screen
         name="CoursesList"
         component={CoursesScreen}
-        options={{ title: "Courses", headerRight: () => <LogoutButton />, }}
+        options={{ title: "Courses", headerRight: () => <LogoutButton /> }}
       />
       <CoursesStack.Screen
         name="CourseDetail"
         component={CourseDetailScreen}
         options={{ title: "Course Details" }}
       />
+      <CoursesStack.Screen
+        name="RoundCreate"
+        component={RoundCreateScreen}
+        options={{ title: "Create Round" }}
+      />
+      <CoursesStack.Screen
+        name="RoundHistory"
+        component={RoundHistoryScreen}
+        options={{ title: "My Rounds" }}
+      />
+      <CoursesStack.Screen
+        name="RoundPlay"
+        component={RoundPlayScreen}
+        options={{ title: "Round" }}
+      />
+
     </CoursesStack.Navigator>
   );
 }
@@ -64,15 +85,13 @@ function LogoutButton() {
       disabled={authBusy}
       style={{ marginRight: 16, opacity: authBusy ? 0.5 : 1 }}
     >
-       <Text style={styles.logoutText}>Log out</Text>
+      <Text style={styles.logoutText}>Log out</Text>
     </Pressable>
   );
 }
 
-
-
 export default function AppNavigator() {
-  const { user, booting } = useAuth(); // ✅ use booting now
+  const { user, booting } = useAuth();
 
   if (booting) {
     return (
@@ -87,7 +106,6 @@ export default function AppNavigator() {
       {user ? (
         <Tab.Navigator
           screenOptions={({ route }) => ({
-            //headerShown: route.name === "About", // ✅ only About shows header
             tabBarIcon: ({ color, size }) => {
               const icon =
                 route.name === "About"
@@ -121,23 +139,25 @@ export default function AppNavigator() {
             }}
           />
           <Tab.Screen
-              name="Courses"
-              component={CoursesStackScreen}
-              options={{
-                headerShown:false,
-              }}
-            />
+            name="Courses"
+            component={CoursesStackScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
           <Tab.Screen
-              name="Profile"
-              component={ProfileScreen}
-              options={{
-                headerShown: true,
-                title: "Profile",
-                headerRight: () => <LogoutButton />,
-              }}
-            />
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              headerShown: true,
+              title: "Profile",
+              headerRight: () => <LogoutButton />,
+            }}
+          />
         </Tab.Navigator>
-      ) : ( <Auth />  )}
+      ) : (
+        <Auth />
+      )}
     </NavigationContainer>
   );
 }
