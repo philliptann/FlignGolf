@@ -1,4 +1,4 @@
-// ProfileScreen.tsx
+// src/screens/ProfileScreen.tsx
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import ScreenBackground from "../components/ScreenBackground";
 import { useAuth } from "../auth/AuthContext";
 import { contentStyles as styles } from "../styles/contentStyles";
@@ -24,24 +25,20 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function ProfileScreen() {
+  const navigation = useNavigation<any>();
   const { user, authBusy, updateMe } = useAuth();
 
   const profile = useMemo(() => user?.profile ?? {}, [user]);
 
   const [editing, setEditing] = useState(false);
-
-  // Editable fields (now includes first/last name on User)
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-
   const [displayName, setDisplayName] = useState("");
   const [country, setCountry] = useState("");
-
   const [error, setError] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
 
-  // hydrate fields from current user
   useEffect(() => {
     if (!user) return;
     setEmail(user.email || "");
@@ -65,8 +62,6 @@ export default function ProfileScreen() {
     setError(null);
     setSavedMsg(null);
     setEditing(false);
-
-    // revert to current user values
     setEmail(user.email || "");
     setFirstName((user as any).first_name || "");
     setLastName((user as any).last_name || "");
@@ -87,7 +82,7 @@ export default function ProfileScreen() {
 
     try {
       await updateMe({
-        email: email.trim(), // allow blank
+        email: email.trim(),
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         display_name: displayName.trim(),
@@ -102,7 +97,7 @@ export default function ProfileScreen() {
     }
   }
 
-  const u: any = user; // so we can safely read first_name/last_name
+  const u: any = user;
 
   return (
     <ScreenBackground>
@@ -207,7 +202,7 @@ export default function ProfileScreen() {
             <TextInput
               value={displayName}
               onChangeText={setDisplayName}
-              placeholder="Display name (optional)"
+              placeholder="Display name"
               style={styles.input}
               editable={!authBusy}
             />
@@ -242,6 +237,26 @@ export default function ProfileScreen() {
           label="Consent accepted"
           value={profile.consent_accepted ? "Yes" : "No"}
         />
+
+        <Pressable
+          onPress={() => navigation.navigate("HandicapHistory")}
+          style={{
+            marginTop: 20,
+            padding: 14,
+            backgroundColor: "#2563eb",
+            borderRadius: 10,
+          }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              textAlign: "center",
+              fontWeight: "600",
+            }}
+          >
+            Handicap History
+          </Text>
+        </Pressable>
       </ScrollView>
     </ScreenBackground>
   );

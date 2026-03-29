@@ -7,7 +7,16 @@ type User = {
   id: number;
   username: string;
   email: string;
-  profile?: any;
+  display_name?: string;
+  profile?: {
+    display_name?: string;
+    country?: string;
+    is_player?: boolean;
+    is_club_admin?: boolean;
+    is_platform_admin?: boolean;
+    consent_accepted?: boolean;
+    consent_accepted_at?: string | null;
+  };
 };
 
 type RegisterPayload = {

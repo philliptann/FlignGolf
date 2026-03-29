@@ -1,5 +1,5 @@
 // src/screens/rounds/RoundCreateScreen.tsx
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -14,16 +14,24 @@ import ScreenBackground from "../../components/ScreenBackground";
 import { contentStyles as content } from "../../styles/contentStyles";
 import { createRound } from "../../api/roundsApi";
 import TeeSetBadge from "../../features/rounds/components/TeeSetBadge";
+import { useAuth } from "../../auth/AuthContext";
 
 const SCORING_FORMAT_OPTIONS = [
   { value: "stableford", label: "Stableford" },
-  { value: "net", label: "Net" },
-  { value: "gross", label: "Gross" },
-];
+  { value: "strokeplay", label: "Stroke Play" },
+  { value: "matchplay", label: "Match Play" },
+] as const;
+
+type PlayerDraft = {
+  display_name: string;
+  user_id?: number;
+  locked?: boolean;
+};
 
 export default function RoundCreateScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const { user } = useAuth();
 
   const {
     courseId,
@@ -33,21 +41,54 @@ export default function RoundCreateScreen() {
     teeSetColour = null,
   } = route.params || {};
 
+  const primaryDisplayName = useMemo(
+    () =>
+      user?.profile?.display_name ||
+      user?.display_name ||
+      user?.username ||
+      "Player 1",
+    [user]
+  );
+
   const [name, setName] = useState(`${courseName || "Course"} Round`);
-  const [datePlayed, setDatePlayed] = useState(new Date().toISOString().slice(0, 10));
-  const [scoringFormat, setScoringFormat] = useState("stableford");
-  const [players, setPlayers] = useState<string[]>(["Player 1"]);
+  const [datePlayed, setDatePlayed] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [scoringFormat, setScoringFormat] = useState<
+    "stableford" | "strokeplay" | "matchplay"
+  >("stableford");
+
+  const [isQualifying, setIsQualifying] = useState(true);
+
+
+
+  const [players, setPlayers] = useState<PlayerDraft[]>([
+    {
+      display_name: primaryDisplayName,
+      user_id: user?.id,
+      locked: true,
+    },
+  ]);
+
   const [saving, setSaving] = useState(false);
 
   const updatePlayer = (index: number, value: string) => {
-    setPlayers((current) => current.map((player, i) => (i === index ? value : player)));
+    setPlayers((current) =>
+      current.map((player, i) =>
+        i === index ? { ...player, display_name: value } : player
+      )
+    );
   };
 
   const addPlayer = () => {
-    setPlayers((current) => [...current, `Player ${current.length + 1}`]);
+    setPlayers((current) => [
+      ...current,
+      { display_name: `Player ${current.length + 1}` },
+    ]);
   };
 
   const removePlayer = (index: number) => {
+    if (index === 0) return;
     setPlayers((current) => current.filter((_, i) => i !== index));
   };
 
@@ -57,17 +98,21 @@ export default function RoundCreateScreen() {
       return;
     }
 
-    const cleanedPlayers = players
-      .map((player) => player.trim())
-      .filter((player) => player.length > 0);
+    const cleanedPlayers = players.map((player) => ({
+      ...player,
+      display_name: player.display_name.trim(),
+    }));
 
     if (cleanedPlayers.length === 0) {
       Alert.alert("Validation", "Please enter at least one player.");
       return;
     }
 
-    if (cleanedPlayers.length !== players.length) {
-      Alert.alert("Validation", "Please complete all player names or remove empty rows.");
+    if (cleanedPlayers.some((player) => !player.display_name)) {
+      Alert.alert(
+        "Validation",
+        "Please complete all player names or remove empty rows."
+      );
       return;
     }
 
@@ -80,10 +125,15 @@ export default function RoundCreateScreen() {
         tee_set_id: Number(teeSetId),
         scoring_format: scoringFormat,
         date_played: datePlayed,
-        players: cleanedPlayers.map((display_name) => ({ display_name })),
+        is_qualifying: isQualifying,
+        players: cleanedPlayers.map((player, index) => ({
+          display_name: player.display_name,
+          user_id: player.user_id,
+          is_primary_player: index === 0,
+        })),
       };
 
-     //console.log("Create round payload:", JSON.stringify(payload, null, 2));
+      // console.log("Create round payload:", JSON.stringify(payload, null, 2));
 
       const created = await createRound(payload);
 
@@ -130,7 +180,6 @@ export default function RoundCreateScreen() {
         />
 
         <Text style={styles.label}>Scoring Format</Text>
-
         <View style={styles.optionRow}>
           {SCORING_FORMAT_OPTIONS.map((option) => {
             const active = scoringFormat === option.value;
@@ -139,10 +188,7 @@ export default function RoundCreateScreen() {
               <TouchableOpacity
                 key={option.value}
                 onPress={() => setScoringFormat(option.value)}
-                style={[
-                  styles.optionButton,
-                  active && styles.optionButtonActive,
-                ]}
+                style={[styles.optionButton, active && styles.optionButtonActive]}
               >
                 <Text
                   style={[
@@ -157,6 +203,37 @@ export default function RoundCreateScreen() {
           })}
         </View>
 
+        <Text style={styles.label}>Qualifying Round</Text>
+        <View style={styles.optionRow}>
+          <TouchableOpacity
+            onPress={() => setIsQualifying(true)}
+            style={[styles.optionButton, isQualifying && styles.optionButtonActive]}
+          >
+            <Text
+              style={[
+                styles.optionButtonText,
+                isQualifying && styles.optionButtonTextActive,
+              ]}
+            >
+              Yes
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setIsQualifying(false)}
+            style={[styles.optionButton, !isQualifying && styles.optionButtonActive]}
+          >
+            <Text
+              style={[
+                styles.optionButtonText,
+                !isQualifying && styles.optionButtonTextActive,
+              ]}
+            >
+              No
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.playersHeaderRow}>
           <Text style={styles.label}>Players</Text>
           <TouchableOpacity style={styles.addPlayerButton} onPress={addPlayer}>
@@ -166,14 +243,20 @@ export default function RoundCreateScreen() {
 
         {players.map((player, index) => (
           <View key={index} style={styles.playerRow}>
-            <TextInput
-              value={player}
-              onChangeText={(value) => updatePlayer(index, value)}
-              style={[styles.input, styles.playerInput]}
-              placeholder={`Player ${index + 1}`}
-            />
+            {player.locked ? (
+              <View style={[styles.input, styles.lockedPlayerBox]}>
+                <Text style={styles.lockedPlayerText}>{player.display_name}</Text>
+              </View>
+            ) : (
+              <TextInput
+                value={player.display_name}
+                onChangeText={(value) => updatePlayer(index, value)}
+                style={[styles.input, styles.playerInput]}
+                placeholder={`Player ${index + 1}`}
+              />
+            )}
 
-            {players.length > 1 && (
+            {index > 0 && (
               <TouchableOpacity
                 style={styles.removeButton}
                 onPress={() => removePlayer(index)}
@@ -252,6 +335,15 @@ const styles = StyleSheet.create({
   },
   playerInput: {
     marginBottom: 8,
+  },
+  lockedPlayerBox: {
+    justifyContent: "center",
+    backgroundColor: "#f3f4f6",
+    marginBottom: 8,
+  },
+  lockedPlayerText: {
+    color: "#111827",
+    fontWeight: "600",
   },
   removeButton: {
     alignSelf: "flex-start",

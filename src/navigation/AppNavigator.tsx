@@ -1,5 +1,4 @@
 // src/navigation/AppNavigator.tsx
-
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -13,17 +12,17 @@ import CourseDetailScreen from "../screens/CourseDetailScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import HandicapHistoryScreen from "../screens/HandicapHistoryScreen";
 import RoundHistoryScreen from "../screens/rounds/RoundHistoryScreen";
 import RoundPlayScreen from "../screens/rounds/RoundPlayScreen";
+import RoundCreateScreen from "../screens/rounds/RoundCreateScreen";
 import { contentStyles as styles } from "../styles/contentStyles";
 import HomeHeaderTitle from "../components/HomeHeaderTitle";
-
 import { useAuth } from "../auth/AuthContext";
-
-import RoundCreateScreen from "../screens/rounds/RoundCreateScreen";
 
 const Tab = createBottomTabNavigator();
 const CoursesStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator();
 const AuthStack = createNativeStackNavigator();
 
 function CoursesStackScreen() {
@@ -54,8 +53,24 @@ function CoursesStackScreen() {
         component={RoundPlayScreen}
         options={{ title: "Round" }}
       />
-
     </CoursesStack.Navigator>
+  );
+}
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="ProfileHome"
+        component={ProfileScreen}
+        options={{ title: "Profile", headerRight: () => <LogoutButton /> }}
+      />
+      <ProfileStack.Screen
+        name="HandicapHistory"
+        component={HandicapHistoryScreen}
+        options={{ title: "Handicap History" }}
+      />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -147,11 +162,9 @@ export default function AppNavigator() {
           />
           <Tab.Screen
             name="Profile"
-            component={ProfileScreen}
+            component={ProfileStackScreen}
             options={{
-              headerShown: true,
-              title: "Profile",
-              headerRight: () => <LogoutButton />,
+              headerShown: false,
             }}
           />
         </Tab.Navigator>
