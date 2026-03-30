@@ -137,7 +137,7 @@ export default function RoundCreateScreen() {
 
       const created = await createRound(payload);
 
-      Alert.alert("Success", "Round created.");
+      //Alert.alert("Success", "Round created.");
       navigation.replace("RoundPlay", { roundId: created.id });
     } catch (err: any) {
       console.log("Failed to create round:", err);

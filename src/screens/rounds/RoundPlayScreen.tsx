@@ -33,6 +33,11 @@ export default function RoundPlayScreen() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<number | null>(null);
 
+  const [currentHoleIndex, setCurrentHoleIndex] = useState(0);
+  const [draftScores, setDraftScores] = useState<Record<number, string>>({});
+
+  
+
   const loadRound = useCallback(async () => {
     try {
       setLoading(true);
@@ -52,39 +57,163 @@ export default function RoundPlayScreen() {
     loadRound();
   }, [loadRound]);
 
-  const handleUpdateScore = async (holeScoreId: number, strokesValue: string) => {
-    try {
-      setSavingId(holeScoreId);
+  useEffect(() => {
+    if (!round) return;
 
-      const trimmed = strokesValue.trim();
-      const parsed = trimmed === "" ? null : Number.parseInt(trimmed, 10);
+    const initialScores: Record<number, string> = {};
+    const playRoundData = mapRoundDetailToPlayScreen(round);
 
-      if (trimmed !== "" && Number.isNaN(parsed)) {
-        Alert.alert("Validation", "Please enter a valid number.");
-        return;
+    for (const hole of playRoundData.holes) {
+      for (const score of hole.playerScores) {
+        initialScores[score.holeScoreId] =
+          score.strokes != null ? String(score.strokes) : "";
       }
+    }
 
-      await patchRoundHoleScore(holeScoreId, { strokes: parsed });
+  setDraftScores(initialScores);
+}, [round]);
+
+  const handleAutoAdvanceIfReady = async () => {
+    if (locked || !currentHole || isLastHole) return;
+
+    try {
+      if (!validateHoleScores()) return;
+
+      await saveHoleScores();
+      setCurrentHoleIndex((prev) => prev + 1);
       await loadRound();
     } catch (error) {
-      Alert.alert("Error", "Failed to update score.");
-    } finally {
+      console.log("handleAutoAdvanceIfReady error", error);
+      Alert.alert("Error", "Failed to save scores for this hole.");
       setSavingId(null);
     }
   };
+  // const handleUpdateScore = async (holeScoreId: number, strokesValue: string) => {
+  //   try {
+  //     setSavingId(holeScoreId);
+
+  //     const trimmed = strokesValue.trim();
+  //     const parsed = trimmed === "" ? null : Number.parseInt(trimmed, 10);
+
+  //     if (trimmed !== "" && Number.isNaN(parsed)) {
+  //       Alert.alert("Validation", "Please enter a valid number.");
+  //       return;
+  //     }
+
+  //     await patchRoundHoleScore(holeScoreId, { strokes: parsed });
+  //     await loadRound();
+  //   } catch (error) {
+  //     Alert.alert("Error", "Failed to update score.");
+  //   } finally {
+  //     setSavingId(null);
+  //   }
+  // };
 
   const handleLifecycleAction = async (action: "start" | "complete" | "cancel") => {
     if (!round) return;
 
+    const runAction = async () => {
+      try {
+        if (action === "start") {
+          await startRound(round.id);
+          setCurrentHoleIndex(0);
+        }
+        if (action === "complete") await completeRound(round.id);
+        if (action === "cancel") await cancelRound(round.id);
+
+        await loadRound();
+      } catch (error) {
+        Alert.alert("Error", `Failed to ${action} round.`);
+      }
+    };
+
+    if (action === "complete") {
+      Alert.alert(
+        "Complete round",
+        "Are you sure you want to complete this round?",
+        [
+          { text: "No", style: "cancel" },
+          { text: "Yes", onPress: () => void runAction() },
+        ]
+      );
+      return;
+    }
+
+    if (action === "cancel") {
+      Alert.alert(
+        "Cancel round",
+        "Are you sure you want to cancel this round?",
+        [
+          { text: "No", style: "cancel" },
+          { text: "Yes", style: "destructive", onPress: () => void runAction() },
+        ]
+      );
+      return;
+    }
+
+    await runAction();
+  };;
+
+  const validateHoleScores = () => {
+    if (!currentHole) return false;
+
+    for (const score of currentHole.playerScores) {
+      const value = (draftScores[score.holeScoreId] ?? "").trim();
+
+      if (value === "") {
+        Alert.alert("Validation", `Enter strokes for ${score.playerName}.`);
+        return false;
+      }
+
+      const parsed = Number.parseInt(value, 10);
+
+      if (Number.isNaN(parsed) || parsed < 1) {
+        Alert.alert("Validation", `Enter a valid strokes value for ${score.playerName}.`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+
+  const saveHoleScores = async () => {
+    if (!currentHole) return;
+
+    for (const score of currentHole.playerScores) {
+      const value = (draftScores[score.holeScoreId] ?? "").trim();
+      const parsed = Number.parseInt(value, 10);
+
+      setSavingId(score.holeScoreId);
+      await patchRoundHoleScore(score.holeScoreId, { strokes: parsed });
+    }
+
+    setSavingId(null);
+  };
+
+  const handleNextHole = async () => {
+    if (locked) return;
+
     try {
-      if (action === "start") await startRound(round.id);
-      if (action === "complete") await completeRound(round.id);
-      if (action === "cancel") await cancelRound(round.id);
+      if (!validateHoleScores()) return;
+
+      await saveHoleScores();
+
+      if (!isLastHole) {
+        setCurrentHoleIndex((prev) => prev + 1);
+      }
 
       await loadRound();
     } catch (error) {
-      Alert.alert("Error", `Failed to ${action} round.`);
+      console.log("handleNextHole error", error);
+      Alert.alert("Error", "Failed to save scores for this hole.");
+      setSavingId(null);
     }
+  };
+
+  const handlePreviousHole = () => {
+    if (isFirstHole) return;
+    setCurrentHoleIndex((prev) => prev - 1);
   };
 
   if (loading || !round) {
@@ -97,6 +226,10 @@ export default function RoundPlayScreen() {
 
   const playRound = mapRoundDetailToPlayScreen(round);
   const locked = isRoundLocked(round.status);
+ 
+  const currentHole = playRound.holes[currentHoleIndex];
+  const isFirstHole = currentHoleIndex === 0;
+  const isLastHole = currentHoleIndex === playRound.holes.length - 1;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }}>
@@ -189,9 +322,8 @@ export default function RoundPlayScreen() {
             This round is locked and can no longer be edited.
           </Text>
         )}
-        {playRound.holes.map((hole) => (
+
         <View
-          key={hole.holeNumber}
           style={{
             backgroundColor: "#fff",
             borderRadius: 12,
@@ -202,14 +334,18 @@ export default function RoundPlayScreen() {
           }}
         >
           <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 4 }}>
-            Hole {hole.holeNumber}
+            Hole {currentHole.holeNumber}
           </Text>
 
           <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 12 }}>
-            Par {hole.playerScores[0]?.par ?? "-"}
+            Par {currentHole.playerScores[0]?.par ?? "-"}
           </Text>
 
-          {hole.playerScores.map((score) => (
+          {currentHole.playerScores.map((score, index) => {
+            const isLastPlayer = index === currentHole.playerScores.length - 1;
+
+            return (
+          
             <View
               key={score.holeScoreId}
               style={{
@@ -225,13 +361,21 @@ export default function RoundPlayScreen() {
               </View>
 
               <TextInput
-                defaultValue={score.strokes != null ? String(score.strokes) : ""}
+                value={draftScores[score.holeScoreId] ?? ""}
                 editable={!locked && savingId !== score.holeScoreId}
                 keyboardType="number-pad"
                 placeholder="-"
-                onEndEditing={(e) =>
-                  handleUpdateScore(score.holeScoreId, e.nativeEvent.text)
+                onChangeText={(text) =>
+                  setDraftScores((prev) => ({
+                    ...prev,
+                    [score.holeScoreId]: text,
+                  }))
                 }
+                onEndEditing={async () => {
+                  if (isLastPlayer) {
+                    await handleAutoAdvanceIfReady();
+                  }
+                }}
                 style={{
                   width: 72,
                   borderWidth: 1,
@@ -245,10 +389,41 @@ export default function RoundPlayScreen() {
                 }}
               />
             </View>
-          ))}
+          );})}
+
         </View>
-      ))}
-       
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 24 }}>
+          <Pressable
+            onPress={handlePreviousHole}
+            disabled={isFirstHole || locked}
+            style={{
+              backgroundColor: isFirstHole || locked ? "#d1d5db" : "#374151",
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "600" }}>Back</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleNextHole}
+            disabled={locked}
+            style={{
+              backgroundColor: locked ? "#d1d5db" : "#2563eb",
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "600" }}>
+              {isLastHole ? "Save Hole" : "Next"}
+            </Text>
+          </Pressable>
+        </View>
+          
+
+
       </ScrollView>
     </SafeAreaView>
   );
