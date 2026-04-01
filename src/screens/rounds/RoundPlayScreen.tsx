@@ -88,27 +88,7 @@ export default function RoundPlayScreen() {
       setSavingId(null);
     }
   };
-  // const handleUpdateScore = async (holeScoreId: number, strokesValue: string) => {
-  //   try {
-  //     setSavingId(holeScoreId);
-
-  //     const trimmed = strokesValue.trim();
-  //     const parsed = trimmed === "" ? null : Number.parseInt(trimmed, 10);
-
-  //     if (trimmed !== "" && Number.isNaN(parsed)) {
-  //       Alert.alert("Validation", "Please enter a valid number.");
-  //       return;
-  //     }
-
-  //     await patchRoundHoleScore(holeScoreId, { strokes: parsed });
-  //     await loadRound();
-  //   } catch (error) {
-  //     Alert.alert("Error", "Failed to update score.");
-  //   } finally {
-  //     setSavingId(null);
-  //   }
-  // };
-
+ 
   const handleLifecycleAction = async (action: "start" | "complete" | "cancel") => {
     if (!round) return;
 
@@ -234,10 +214,38 @@ export default function RoundPlayScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: 8 }}>
-          {playRound.name}
-        </Text>
 
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 8,
+            gap: 12,
+          }}
+        >
+          <Text style={{ fontSize: 24, fontWeight: "700", flex: 1 }}>
+            {playRound.name}
+          </Text>
+
+          {round.tournament?.join_code ? (
+            <View
+              style={{
+                backgroundColor: "#dbeafe",
+                borderWidth: 1,
+                borderColor: "#93c5fd",
+                borderRadius: 999,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+              }}
+            >
+              <Text style={{ color: "#1d4ed8", fontWeight: "700" }}>
+                {round.tournament.join_code}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+  
         <RoundStatusBadge status={round.status} />
 
         <Text style={{ marginTop: 12 }}>Course: {playRound.courseName}</Text>

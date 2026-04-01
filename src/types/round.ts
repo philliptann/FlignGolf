@@ -144,6 +144,13 @@ export interface RoundTimestamps {
   cancelled_at?: string | null;
 }
 
+export interface RoundTournament {
+  id: number;
+  name: string;
+  join_code: string;
+  status: string;
+}
+
 export interface RoundDetail {
   id: number;
   name: string;
@@ -157,6 +164,7 @@ export interface RoundDetail {
   players: RoundPlayer[];
   holes: RoundHole[];
   timestamps: RoundTimestamps;
+  tournament?: RoundTournament | null;
 }
 
 export interface CreateRoundPlayerInput {
