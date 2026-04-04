@@ -144,7 +144,7 @@ export default function RegisterScreen({ navigation }: any) {
 
         <TextInput
           ref={emailRef}
-          placeholder="Email (optional)"
+          placeholder="Email (optional but required for updates)"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
@@ -157,7 +157,7 @@ export default function RegisterScreen({ navigation }: any) {
 
         <TextInput
           ref={displayNameRef}
-          placeholder="Display name (optional)"
+          placeholder="Display name"
           value={displayName}
           onChangeText={setDisplayName}
           style={styles.input}
@@ -224,7 +224,7 @@ export default function RegisterScreen({ navigation }: any) {
         <Pressable
           onPress={() => navigation.goBack()}
           disabled={authBusy}
-          style={[styles.linkCenter, { opacity: authBusy ? 0.5 : 1, marginTop: 0 }]}
+          style={[styles.linkCenter, { opacity: authBusy ? 0.5 : 1}]}
         >
           <Text style={styles.link}>Already have an account? Sign in</Text>
         </Pressable>

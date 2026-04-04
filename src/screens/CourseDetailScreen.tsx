@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { apiGet } from "../api/client";
-import { contentStyles as content } from "../styles/contentStyles";
+import { contentStyles as style } from "../styles/contentStyles";
 import ScreenBackground from "../components/ScreenBackground";
 
 type TeeSet = {
@@ -64,7 +64,7 @@ function getTeeSetCardColours(colour?: string | null, active?: boolean) {
       };
     case "yellow":
       return {
-        headerBackground: "#facc15",
+        headerBackground: "#f8d95f",
         headerText: "#111827",
         bodyBackground: active ? "#fef9c3" : "#ffffff",
         borderColor: active ? "#eab308" : "#d1d5db",
@@ -72,7 +72,7 @@ function getTeeSetCardColours(colour?: string | null, active?: boolean) {
       };
     case "red":
       return {
-        headerBackground: "#dc2626",
+        headerBackground: "#e25151",
         headerText: "#ffffff",
         bodyBackground: active ? "#fee2e2" : "#ffffff",
         borderColor: active ? "#b91c1c" : "#d1d5db",
@@ -80,7 +80,7 @@ function getTeeSetCardColours(colour?: string | null, active?: boolean) {
       };
     case "blue":
       return {
-        headerBackground: "#2563eb",
+        headerBackground: "#5785e9",
         headerText: "#ffffff",
         bodyBackground: active ? "#dbeafe" : "#ffffff",
         borderColor: active ? "#1d4ed8" : "#d1d5db",
@@ -96,7 +96,7 @@ function getTeeSetCardColours(colour?: string | null, active?: boolean) {
       };
     case "green":
       return {
-        headerBackground: "#16a34a",
+        headerBackground: "#3da664",
         headerText: "#ffffff",
         bodyBackground: active ? "#dcfce7" : "#ffffff",
         borderColor: active ? "#15803d" : "#d1d5db",
@@ -126,7 +126,6 @@ export default function CourseDetailScreen({ route }: any) {
     apiGet<CourseDetail>(`/api/courses/${courseId}/`)
       .then((data) => {
         setCourse(data);
-
         if (data.tee_sets && data.tee_sets.length > 0) {
           setSelectedTeeSet(data.tee_sets[0]);
         }
@@ -135,34 +134,65 @@ export default function CourseDetailScreen({ route }: any) {
       .finally(() => setLoading(false));
   }, [courseId]);
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 32 }} />;
-  if (error) return <Text style={{ padding: 16 }}>{error}</Text>;
-  if (!course) return <Text>Course not found</Text>;
+  if (loading) {
+    return (
+      <ScreenBackground>
+        <ActivityIndicator style={style.loading} />
+      </ScreenBackground>
+    );
+  }
+
+  if (error) {
+    return (
+      <ScreenBackground>
+        <Text style={[style.error, { padding: 16 }]}>{error}</Text>
+      </ScreenBackground>
+    );
+  }
+
+  if (!course) {
+    return (
+      <ScreenBackground>
+        <Text style={[style.body, { padding: 16 }]}>Course not found</Text>
+      </ScreenBackground>
+    );
+  }
+
+  const mapAddress = [
+    course.postcode,
+    course.address,
+    course.city,
+    course.region,
+    course.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <ScreenBackground>
-      <View style={{ flex: 1, padding: 16 }}>
+      <View style={localStyles.container}>
         <View>
-          <Text style={content.title}>{course.name}</Text>
+          <Text style={style.title}>{course.name}</Text>
 
-          {!!course.address && <Text style={content.body}>{course.address}</Text>}
-          {!!course.city && <Text style={content.body}>{course.city}</Text>}
-          {!!course.region && <Text style={content.body}>{course.region}</Text>}
-          {!!course.postcode && <Text style={content.body}>{course.postcode}</Text>}
-          {!!course.country && <Text style={content.body}>{course.country}</Text>}
+          {!!course.address && <Text style={style.body}>{course.address}</Text>}
+          {!!course.city && <Text style={style.body}>{course.city}</Text>}
+          {!!course.region && <Text style={style.body}>{course.region}</Text>}
+          {!!course.postcode && <Text style={style.body}>{course.postcode}</Text>}
+          {!!course.country && <Text style={style.body}>{course.country}</Text>}
 
           {(course.holes || course.par) && (
-            <Text style={[content.body, { marginTop: 8, fontWeight: "600" }]}>
+            <Text style={localStyles.metaText}>
               {course.holes ? `${course.holes} holes` : ""}
-              {course.holes && course.par ? " -- " : ""}
+              {course.holes && course.par ? " • " : ""}
               {course.par ? `Par ${course.par}` : ""}
             </Text>
           )}
 
           <TouchableOpacity
             style={[
-              styles.primaryButton,
-              { marginTop: 12, opacity: selectedTeeSet ? 1 : 0.5 },
+              style.primaryButton,
+              !selectedTeeSet && style.primaryButtonDisabled,
+              { opacity: selectedTeeSet ? 1 : 0.5 },
             ]}
             disabled={!selectedTeeSet}
             onPress={() => {
@@ -177,57 +207,46 @@ export default function CourseDetailScreen({ route }: any) {
               });
             }}
           >
-            <Text style={styles.primaryButtonText}>Create Round</Text>
+            <Text style={style.primaryButtonText}>Create Round</Text>
           </TouchableOpacity>
+
 
           <TouchableOpacity
-            style={[styles.secondaryButton, { marginTop: 12 }]}
+            style={style.secondaryButton}
             onPress={() => navigation.navigate("RoundHistory")}
           >
-            <Text style={styles.secondaryButtonText}>My Rounds</Text>
+            <Text style={style.secondaryButtonText}>My Rounds</Text>
           </TouchableOpacity>
 
-          {(course.address || course.postcode) && (
+
+
+          {!!mapAddress && (
             <TouchableOpacity
-              style={[styles.mapButton, { marginTop: 12 }]}
-              onPress={() =>
-                openMaps(
-                  [
-                    course.postcode,
-                    course.address,
-                    course.city,
-                    course.region,
-                    course.country,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")
-                )
-              }
+              style={style.outlineButton}
+              onPress={() => openMaps(mapAddress)}
             >
-              <Text style={styles.mapButtonText}>Open in Maps</Text>
+              <Text style={style.outlineButtonText}>Open in Maps</Text>
             </TouchableOpacity>
           )}
 
-          {course.external_booking_url && (
+          {!!course.external_booking_url && (
             <TouchableOpacity
-              style={styles.button}
+              style={style.outlineButton}
               onPress={() => Linking.openURL(course.external_booking_url)}
             >
-              <Text style={styles.buttonText}>Visit Course Website</Text>
+              <Text style={style.outlineButtonText}>Visit Course Website</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        <View style={{ flex: 1, marginTop: 20 }}>
+        <View style={localStyles.teeSetSection}>
           {course.tee_sets && course.tee_sets.length > 0 && (
             <>
-              <Text style={[content.body, { fontWeight: "700", marginBottom: 10 }]}>
-                Select Tee Set
-              </Text>
+              <Text style={localStyles.teeSetHeading}>Select Tee Set</Text>
 
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 24 }}
+                contentContainerStyle={localStyles.scrollContent}
               >
                 {course.tee_sets.map((teeSet) => {
                   const active = selectedTeeSet?.id === teeSet.id;
@@ -237,52 +256,50 @@ export default function CourseDetailScreen({ route }: any) {
                     <TouchableOpacity
                       key={teeSet.id}
                       onPress={() => setSelectedTeeSet(teeSet)}
-                      style={{
-                        borderRadius: 10,
-                        marginBottom: 10,
-                        borderWidth: 2,
-                        borderColor: colours.borderColor,
-                        backgroundColor: colours.bodyBackground,
-                        overflow: "hidden",
-                      }}
+                      style={[
+                        localStyles.teeSetCard,
+                        {
+                          borderColor: colours.borderColor,
+                          backgroundColor: colours.bodyBackground,
+                        },
+                      ]}
                     >
                       <View
-                        style={{
-                          backgroundColor: colours.headerBackground,
-                          paddingHorizontal: 14,
-                          paddingVertical: 10,
-                          borderBottomWidth: 1,
-                          borderBottomColor: colours.headerDivider,
-                        }}
+                        style={[
+                          localStyles.teeSetHeader,
+                          {
+                            backgroundColor: colours.headerBackground,
+                            borderBottomColor: colours.headerDivider,
+                          },
+                        ]}
                       >
                         <Text
-                          style={{
-                            fontWeight: "700",
-                            fontSize: 16,
-                            color: colours.headerText,
-                          }}
+                          style={[
+                            localStyles.teeSetHeaderText,
+                            { color: colours.headerText },
+                          ]}
                         >
                           {teeSet.name}
                         </Text>
                       </View>
 
-                      <View style={{ padding: 14 }}>
+                      <View style={localStyles.teeSetBody}>
                         {!!teeSet.colour && (
-                          <Text style={content.body}>Colour: {teeSet.colour}</Text>
+                          <Text style={style.body}>Colour: {teeSet.colour}</Text>
                         )}
 
                         {teeSet.par_total != null && (
-                          <Text style={content.body}>Par: {teeSet.par_total}</Text>
+                          <Text style={style.body}>Par: {teeSet.par_total}</Text>
                         )}
 
                         {teeSet.course_rating != null && (
-                          <Text style={content.body}>
+                          <Text style={style.body}>
                             Course rating: {teeSet.course_rating}
                           </Text>
                         )}
 
                         {teeSet.slope_rating != null && (
-                          <Text style={content.body}>
+                          <Text style={style.body}>
                             Slope rating: {teeSet.slope_rating}
                           </Text>
                         )}
@@ -290,12 +307,8 @@ export default function CourseDetailScreen({ route }: any) {
                         {active && (
                           <Text
                             style={[
-                              content.body,
-                              {
-                                marginTop: 8,
-                                fontWeight: "700",
-                                color: colours.borderColor,
-                              },
+                              localStyles.selectedText,
+                              { color: colours.borderColor },
                             ]}
                           >
                             Selected
@@ -314,50 +327,50 @@ export default function CourseDetailScreen({ route }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    marginTop: 12,
-    padding: 14,
-    backgroundColor: "#0a7",
-    borderRadius: 10,
+const localStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
   },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
+  metaText: {
+    marginTop: 8,
     fontWeight: "600",
+    color: "#333",
   },
-  mapButton: {
-    marginTop: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "#0a7",
+  teeSetSection: {
+    flex: 1,
+    marginTop: 20,
+  },
+  teeSetHeading: {
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 10,
+    color: "#333",
+  },
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  teeSetCard: {
     borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 2,
+    overflow: "hidden",
   },
-  mapButtonText: {
-    color: "#0a7",
-    textAlign: "center",
-    fontWeight: "600",
+  teeSetHeader: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
   },
-  secondaryButton: {
-    marginTop: 12,
+  teeSetHeaderText: {
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  teeSetBody: {
     padding: 14,
-    backgroundColor: "#2563eb",
-    borderRadius: 10,
   },
-  secondaryButtonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  primaryButton: {
-    marginTop: 12,
-    padding: 14,
-    backgroundColor: "#16a34a",
-    borderRadius: 10,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "600",
+  selectedText: {
+    marginTop: 8,
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

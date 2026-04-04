@@ -65,13 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authBusy, setAuthBusy] = useState(false);
 
   // Debug (optional)
-  useEffect(() => {
-    console.log("AUTH state:", {
-      booting,
-      authBusy,
-      user: user?.username ?? null,
-    });
-  }, [booting, authBusy, user]);
+  //useEffect(() => {  console.log("AUTH state:", {  booting,  authBusy,  user: user?.username ?? null,  });}, [booting, authBusy, user]);
 
   // Bootstrap
   useEffect(() => {

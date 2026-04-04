@@ -1,17 +1,10 @@
 // src/screens/ProfileScreen.tsx
 import { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput,  View,} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ScreenBackground from "../components/ScreenBackground";
 import { useAuth } from "../auth/AuthContext";
-import { contentStyles as styles } from "../styles/contentStyles";
+import { contentStyles as content } from "../styles/contentStyles";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -51,7 +44,7 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <ScreenBackground>
-        <View style={[styles.container, styles.screenCenter]}>
+        <View style={[content.container, content.screenCenter]}>
           <ActivityIndicator />
         </View>
       </ScreenBackground>
@@ -101,7 +94,7 @@ export default function ProfileScreen() {
 
   return (
     <ScreenBackground>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={content.container}>
         <View
           style={{
             flexDirection: "row",
@@ -110,7 +103,7 @@ export default function ProfileScreen() {
             marginBottom: 12,
           }}
         >
-          <Text style={styles.title}>Profile</Text>
+          <Text style={content.title}>Profile</Text>
 
           {!editing ? (
             <Pressable
@@ -120,7 +113,7 @@ export default function ProfileScreen() {
                 setEditing(true);
               }}
             >
-              <Text style={styles.link}>Edit</Text>
+              <Text style={content.link}>Edit</Text>
             </Pressable>
           ) : (
             <View style={{ flexDirection: "row", gap: 14 }}>
@@ -129,20 +122,20 @@ export default function ProfileScreen() {
                 disabled={authBusy}
                 style={{ opacity: authBusy ? 0.5 : 1 }}
               >
-                <Text style={styles.link}>Cancel</Text>
+                <Text style={content.link}>Cancel</Text>
               </Pressable>
               <Pressable
                 onPress={onSave}
                 disabled={authBusy}
                 style={{ opacity: authBusy ? 0.5 : 1 }}
               >
-                <Text style={styles.link}>Save</Text>
+                <Text style={content.link}>Save</Text>
               </Pressable>
             </View>
           )}
         </View>
 
-        {error && <Text style={[styles.error, { marginBottom: 12 }]}>{error}</Text>}
+        {error && <Text style={[content.error, { marginBottom: 12 }]}>{error}</Text>}
         {savedMsg && (
           <Text style={{ marginBottom: 12, color: "#0a7", fontWeight: "600" }}>
             {savedMsg}
@@ -170,7 +163,7 @@ export default function ProfileScreen() {
               placeholder="Email (optional)"
               autoCapitalize="none"
               keyboardType="email-address"
-              style={styles.input}
+              style={content.input}
               editable={!authBusy}
             />
 
@@ -181,7 +174,7 @@ export default function ProfileScreen() {
               value={firstName}
               onChangeText={setFirstName}
               placeholder="First name (optional)"
-              style={styles.input}
+              style={content.input}
               editable={!authBusy}
             />
 
@@ -192,7 +185,7 @@ export default function ProfileScreen() {
               value={lastName}
               onChangeText={setLastName}
               placeholder="Last name (optional)"
-              style={styles.input}
+              style={content.input}
               editable={!authBusy}
             />
 
@@ -203,7 +196,7 @@ export default function ProfileScreen() {
               value={displayName}
               onChangeText={setDisplayName}
               placeholder="Display name"
-              style={styles.input}
+              style={content.input}
               editable={!authBusy}
             />
 
@@ -216,7 +209,7 @@ export default function ProfileScreen() {
               placeholder="Country (optional, 2-letter e.g. GB)"
               autoCapitalize="characters"
               maxLength={2}
-              style={styles.input}
+              style={content.input}
               editable={!authBusy}
             />
           </>
@@ -238,25 +231,20 @@ export default function ProfileScreen() {
           value={profile.consent_accepted ? "Yes" : "No"}
         />
 
+
         <Pressable
           onPress={() => navigation.navigate("HandicapHistory")}
-          style={{
-            marginTop: 20,
-            padding: 14,
-            backgroundColor: "#2563eb",
-            borderRadius: 10,
-          }}
+          style={[
+            content.secondaryButton,
+            { marginTop: 20 },
+          ]}
         >
-          <Text
-            style={{
-              color: "#fff",
-              textAlign: "center",
-              fontWeight: "600",
-            }}
-          >
+          <Text style={content.secondaryButtonText}>
             Handicap History
           </Text>
         </Pressable>
+
+
       </ScrollView>
     </ScreenBackground>
   );

@@ -24,6 +24,7 @@ import { mapRoundDetailToPlayScreen, isRoundLocked } from "../../features/rounds
 import { RoundDetail } from "../../types/round";
 import RoundStatusBadge from "../../features/rounds/components/RoundStatusBadge";
 import TeeSetBadge from "../../features/rounds/components/TeeSetBadge";
+import { colors } from "../../styles/colors";
 
 export default function RoundPlayScreen() {
   const route = useRoute<any>();
@@ -212,7 +213,7 @@ export default function RoundPlayScreen() {
   const isLastHole = currentHoleIndex === playRound.holes.length - 1;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
 
         <View
@@ -231,7 +232,7 @@ export default function RoundPlayScreen() {
           {round.tournament?.join_code ? (
             <View
               style={{
-                backgroundColor: "#dbeafe",
+                backgroundColor: colors.background ,
                 borderWidth: 1,
                 borderColor: "#93c5fd",
                 borderRadius: 999,
@@ -300,7 +301,7 @@ export default function RoundPlayScreen() {
           {round.status === "draft" && (
             <Pressable
               onPress={() => handleLifecycleAction("start")}
-              style={{ backgroundColor: "#2563eb", padding: 10, borderRadius: 8 }}
+              style={{ backgroundColor: "#1F6F4A", padding: 10, borderRadius: 8 }}
             >
               <Text style={{ color: "#fff", fontWeight: "600" }}>Start Round</Text>
             </Pressable>
@@ -418,7 +419,7 @@ export default function RoundPlayScreen() {
             onPress={handleNextHole}
             disabled={locked}
             style={{
-              backgroundColor: locked ? "#d1d5db" : "#2563eb",
+              backgroundColor: locked ? "#d1d5db" : "#1F6F4A",
               paddingVertical: 10,
               paddingHorizontal: 16,
               borderRadius: 8,

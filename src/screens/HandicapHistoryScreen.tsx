@@ -141,7 +141,7 @@ const stylesLocal = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     fontWeight: "600",
-    color: "#2563eb",
+    color: "#1F6F4A",
   },
   card: {
     backgroundColor: "#ffffff",

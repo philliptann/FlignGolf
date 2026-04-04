@@ -42,4 +42,9 @@ export const listStyles = StyleSheet.create({
   separator: {
     height: 12,
   },
+  actionRow: {
+    flexDirection: "row",
+    marginTop: 12,
+    gap: 10,
+  },
 });

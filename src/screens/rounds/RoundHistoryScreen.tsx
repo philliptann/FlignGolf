@@ -1,13 +1,6 @@
 // src/screens/rounds/RoundHistoryScreen.tsx
 import { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
@@ -15,6 +8,8 @@ import { getRounds } from "../../api/roundsApi";
 import { RoundListItem, RoundStatus } from "../../types/round";
 import RoundCard from "../../features/rounds/components/RoundCard";
 import { mapRoundListItem } from "../../features/rounds/utils/roundMappers";
+
+import { contentStyles as styles } from "../../styles/contentStyles";
 
 type FilterOption = "all" | RoundStatus;
 
@@ -73,20 +68,16 @@ export default function RoundHistoryScreen() {
             <TouchableOpacity
               key={item.key}
               onPress={() => setActiveFilter(item.key)}
-              style={{
-                paddingHorizontal: 16,
-                paddingVertical: 10,
-                borderRadius: 999,
-                marginRight: 8,
-                backgroundColor: active ? "#2563eb" : "#e5e7eb",
-                alignSelf: "flex-start",
-              }}
+              style={[
+                styles.filterPill,
+                active && styles.filterPillActive,
+              ]}
             >
               <Text
-                style={{
-                  color: active ? "#ffffff" : "#111827",
-                  fontWeight: "600",
-                }}
+                style={[
+                  styles.filterPillText,
+                  active && styles.filterPillTextActive,
+                ]}
               >
                 {item.label}
               </Text>

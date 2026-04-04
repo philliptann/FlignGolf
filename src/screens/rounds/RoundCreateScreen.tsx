@@ -165,7 +165,7 @@ export default function RoundCreateScreen() {
 
         if (tournamentMode === "join") {
           const response = await joinTournament({
-            join_code: joinCode.trim().toUpperCase(),
+            join_code: joinCode.trim().toLowerCase(),
           });
 
           navigation.replace("RoundPlay", { roundId: response.round_id });
@@ -190,9 +190,28 @@ export default function RoundCreateScreen() {
       const created = await createRound(payload);
       navigation.replace("RoundPlay", { roundId: created.id });
     } catch (err: any) {
-      console.log("Failed to create round:", err);
-      Alert.alert("Error", "Failed to create round.");
-    } finally {
+        console.log("Failed to create round:", err);
+
+        let message = "Failed to create round.";
+
+        const raw =
+          err?.response?.data ??
+          err?.message ??
+          err;
+
+        if (typeof raw === "string") {
+          try {
+            const parsed = JSON.parse(raw);
+            message = parsed?.detail || raw;
+          } catch {
+            message = raw;
+          }
+        } else if (raw && typeof raw === "object") {
+          message = raw.detail || raw.message || message;
+        }
+
+        Alert.alert("Error", message);
+      }finally {
       setSaving(false);
     }
   };
@@ -230,7 +249,7 @@ export default function RoundCreateScreen() {
         />
 
         <Text style={styles.label}>Scoring Format</Text>
-        <View style={styles.optionRow}>
+        <View style={content.optionRow}>
           {SCORING_FORMAT_OPTIONS.map((option) => {
             const active = scoringFormat === option.value;
 
@@ -238,12 +257,12 @@ export default function RoundCreateScreen() {
               <TouchableOpacity
                 key={option.value}
                 onPress={() => setScoringFormat(option.value)}
-                style={[styles.optionButton, active && styles.optionButtonActive]}
+                style={[content.optionButton, active && content.optionButtonActive]}
               >
                 <Text
                   style={[
-                    styles.optionButtonText,
-                    active && styles.optionButtonTextActive,
+                    content.optionButtonText,
+                    active && content.optionButtonTextActive,
                   ]}
                 >
                   {option.label}
@@ -270,17 +289,19 @@ export default function RoundCreateScreen() {
 
           <Pressable
             onPress={() => setIsTournament((prev) => !prev)}
-            style={{
-              paddingVertical: 10,
-              paddingHorizontal: 12,
-              borderRadius: 8,
-              backgroundColor: isTournament ? "#dbeafe" : "#f3f4f6",
-              borderWidth: 1,
-              borderColor: isTournament ? "#2563eb" : "#d1d5db",
-              marginBottom: 12,
-            }}
+            style={[
+              content.tournamentModeButton,
+              isTournament && content.tournamentModeButtonActive,
+              { marginBottom: 12 },
+            ]}
           >
-            <Text style={{ fontWeight: "600", color: "#111827" }}>
+            <Text
+              style={[
+                content.tournamentModeButtonText,
+                isTournament && content.tournamentModeButtonTextActive,
+                { marginBottom: 12 },
+              ]}
+            >
               {isTournament ? "✓ Tournament round" : "Tournament round"}
             </Text>
           </Pressable>
@@ -290,44 +311,18 @@ export default function RoundCreateScreen() {
               <View style={{ flexDirection: "row", gap: 8, marginBottom: 12 }}>
                 <Pressable
                   onPress={() => setTournamentMode("create")}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 10,
-                    borderRadius: 8,
-                    backgroundColor: tournamentMode === "create" ? "#2563eb" : "#f3f4f6",
-                    borderWidth: 1,
-                    borderColor: tournamentMode === "create" ? "#2563eb" : "#d1d5db",
-                    alignItems: "center",
-                  }}
-                >
+                  style={[content.tournamentModeButton,tournamentMode === "create" && content.tournamentModeButtonActive,]} >
                   <Text
-                    style={{
-                      fontWeight: "600",
-                      color: tournamentMode === "create" ? "#fff" : "#111827",
-                    }}
-                  >
+                    style={{ fontWeight: "600", color: tournamentMode === "create" ? "#fff" : "#111827", }}  >
                     Create
                   </Text>
                 </Pressable>
 
                 <Pressable
                   onPress={() => setTournamentMode("join")}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 10,
-                    borderRadius: 8,
-                    backgroundColor: tournamentMode === "join" ? "#2563eb" : "#f3f4f6",
-                    borderWidth: 1,
-                    borderColor: tournamentMode === "join" ? "#2563eb" : "#d1d5db",
-                    alignItems: "center",
-                  }}
-                >
+                  style={[content.tournamentModeButton,tournamentMode === "join" && content.tournamentModeButtonActive,]} >
                   <Text
-                    style={{
-                      fontWeight: "600",
-                      color: tournamentMode === "join" ? "#fff" : "#111827",
-                    }}
-                  >
+                    style={{ fontWeight: "600", color: tournamentMode === "join" ? "#fff" : "#111827", }}  >
                     Join
                   </Text>
                 </Pressable>
@@ -357,7 +352,7 @@ export default function RoundCreateScreen() {
                     value={joinCode}
                     onChangeText={setJoinCode}
                     placeholder="Enter code"
-                    autoCapitalize="characters"
+                    autoCapitalize="none"
                     style={{
                       borderWidth: 1,
                       borderColor: "#d1d5db",
@@ -372,84 +367,102 @@ export default function RoundCreateScreen() {
             </>
           )}
         </View>
-
-
         
-
-
-        <Text style={styles.label}>Qualifying Round</Text>
-        <View style={styles.optionRow}>
-          <TouchableOpacity
-            onPress={() => setIsQualifying(true)}
-            style={[styles.optionButton, isQualifying && styles.optionButtonActive]}
-          >
-            <Text
-              style={[
-                styles.optionButtonText,
-                isQualifying && styles.optionButtonTextActive,
-              ]}
-            >
-              Yes
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setIsQualifying(false)}
-            style={[styles.optionButton, !isQualifying && styles.optionButtonActive]}
-          >
-            <Text
-              style={[
-                styles.optionButtonText,
-                !isQualifying && styles.optionButtonTextActive,
-              ]}
-            >
-              No
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.playersHeaderRow}>
-          <Text style={styles.label}>Players</Text>
-          <TouchableOpacity style={styles.addPlayerButton} onPress={addPlayer}>
-            <Text style={styles.addPlayerButtonText}>+ Add Player</Text>
-          </TouchableOpacity>
-        </View>
-
-        {players.map((player, index) => (
-          <View key={index} style={styles.playerRow}>
-            {player.locked ? (
-              <View style={[styles.input, styles.lockedPlayerBox]}>
-                <Text style={styles.lockedPlayerText}>{player.display_name}</Text>
-              </View>
-            ) : (
-              <TextInput
-                value={player.display_name}
-                onChangeText={(value) => updatePlayer(index, value)}
-                style={[styles.input, styles.playerInput]}
-                placeholder={`Player ${index + 1}`}
-              />
-            )}
-
-            {index > 0 && (
+        {!isTournament && (
+          <>
+            <Text style={styles.label}>Qualifying Round</Text>
+            <View style={content.optionRow}>
               <TouchableOpacity
-                style={styles.removeButton}
-                onPress={() => removePlayer(index)}
+                onPress={() => setIsQualifying(true)}
+                style={[content.optionButton, isQualifying && content.optionButtonActive]}
               >
-                <Text style={styles.removeButtonText}>Remove</Text>
+                <Text
+                  style={[
+                    content.optionButtonText,
+                    isQualifying && content.optionButtonTextActive,
+                  ]}
+                >
+                  Yes
+                </Text>
               </TouchableOpacity>
-            )}
-          </View>
-        ))}
+
+              <TouchableOpacity
+                onPress={() => setIsQualifying(false)}
+                style={[content.optionButton, !isQualifying && content.optionButtonActive]}
+              >
+                <Text
+                  style={[
+                    content.optionButtonText,
+                    !isQualifying && content.optionButtonTextActive,
+                  ]}
+                >
+                  No
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.playersHeaderRow}>
+              <Text style={styles.label}>Players</Text>
+
+              <TouchableOpacity
+                style={[content.secondaryButton, content.smallButton]}
+                onPress={addPlayer}
+              >
+                <Text style={content.secondaryButtonText}>+ Add Another Player</Text>
+              </TouchableOpacity>
+
+            </View>
+
+            {players.map((player, index) => (
+              <View key={index} style={styles.playerRow}>
+                {player.locked ? (
+                  <View style={[styles.input, styles.lockedPlayerBox]}>
+                    <Text style={styles.lockedPlayerText}>{player.display_name}</Text>
+                  </View>
+                ) : (
+                  <TextInput
+                    value={player.display_name}
+                    onChangeText={(value) => updatePlayer(index, value)}
+                    style={[styles.input, styles.playerInput]}
+                    placeholder={`Player ${index + 1}`}
+                  />
+                )}
+
+                {index > 0 && (
+                  <TouchableOpacity
+                    style={content.removeButton}
+                    onPress={() => removePlayer(index)}
+                  >
+                    <Text style={content.removeButtonText}>Remove</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))}
+          </>
+        )}
 
         <TouchableOpacity
-          style={[styles.button, saving && styles.buttonDisabled]}
+          style={[
+            content.primaryButton,
+            saving && content.primaryButtonDisabled,
+          ]}
           onPress={handleCreateRound}
           disabled={saving}
         >
-          <Text style={styles.buttonText}>
-            {saving  ? "Creating..." : isTournament  ? tournamentMode === "join"  ? "Join Tournament" : "Create Tournament" : "Create Round"}
+          <Text style={content.primaryButtonText}>
+            {saving
+              ? "Creating..."
+              : isTournament
+              ? tournamentMode === "join"
+                ? "Join Tournament"
+                : "Create Tournament"
+              : "Create Round"}
           </Text>
         </TouchableOpacity>
+
+
+
+
       </ScrollView>
     </ScreenBackground>
   );
@@ -519,52 +532,5 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontWeight: "600",
   },
-  removeButton: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: "#fee2e2",
-    borderRadius: 999,
-  },
-  removeButtonText: {
-    color: "#991b1b",
-    fontWeight: "600",
-  },
-  button: {
-    marginTop: 20,
-    padding: 14,
-    backgroundColor: "#2563eb",
-    borderRadius: 10,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  optionRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  optionButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: "#e5e7eb",
-  },
-  optionButtonActive: {
-    backgroundColor: "#2563eb",
-  },
-  optionButtonText: {
-    color: "#111827",
-    fontWeight: "600",
-  },
-  optionButtonTextActive: {
-    color: "#ffffff",
-  },
+  
 });

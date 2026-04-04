@@ -21,18 +21,19 @@ function getStatusLabel(status: RoundStatus): string {
   }
 }
 
+
 function getStatusStyle(status: RoundStatus) {
   switch (status) {
     case "draft":
-      return { backgroundColor: "#d1d5db", color: "#111827" };
+      return { backgroundColor: "#e5e7eb",textColor: "#111827",  };
     case "in_progress":
-      return { backgroundColor: "#bfdbfe", color: "#1e3a8a" };
+      return { backgroundColor: "#19c37d",textColor: "#ffffff", };
     case "completed":
-      return { backgroundColor: "#bbf7d0", color: "#166534" };
+      return { backgroundColor: "#15803d", textColor: "#ffffff", };
     case "cancelled":
-      return { backgroundColor: "#fecaca", color: "#991b1b" };
+      return { backgroundColor: "#dc2626", textColor: "#ffffff", };
     default:
-      return { backgroundColor: "#e5e7eb", color: "#111827" };
+      return { backgroundColor: "#e5e7eb", textColor: "#111827", };
   }
 }
 
@@ -49,7 +50,7 @@ export default function RoundStatusBadge({ status }: Props) {
         backgroundColor: style.backgroundColor,
       }}
     >
-      <Text style={{ fontSize: 12, fontWeight: "600", color: style.color }}>
+      <Text style={{ fontSize: 12, fontWeight: "600", color: style.textColor }}>
         {getStatusLabel(status)}
       </Text>
     </View>

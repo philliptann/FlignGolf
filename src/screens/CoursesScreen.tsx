@@ -1,19 +1,10 @@
 // src/screens/CoursesScreen.tsx
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-  TextInput,
-  Linking,
-  Platform,
-} from "react-native";
+import {ActivityIndicator,FlatList,Text,TouchableOpacity,View,TextInput,Linking,Platform,} from "react-native";
 import { apiGet } from "../api/client";
 import { useNavigation } from "@react-navigation/native";
-import { contentStyles as content } from "../styles/contentStyles";
+import { contentStyles as style } from "../styles/contentStyles";
 import { listStyles as list } from "../styles/listStyles";
 import ScreenBackground from "../components/ScreenBackground";
 
@@ -54,7 +45,7 @@ export default function CoursesScreen() {
     apiGet<Course[] | { results: Course[] }>("/api/courses/")
       .then((data) => {
         const rows = Array.isArray(data) ? data : data.results ?? [];
-        console.log("Courses response:", JSON.stringify(rows, null, 2));
+        //console.log("Courses response:", JSON.stringify(rows, null, 2));
         setCourses(rows);
       })
       .catch((e) => setError(e.message))
@@ -81,8 +72,8 @@ export default function CoursesScreen() {
   );
 }, [courses, query]);
 
-  if (loading) return <ActivityIndicator style={content.loading} />;
-  if (error) return <Text style={[content.error, { padding: 16 }]}>{error}</Text>;
+  if (loading) return <ActivityIndicator style={style.loading} />;
+  if (error) return <Text style={[style.error, { padding: 16 }]}>{error}</Text>;
 
   return (
   <View style={list.screen}>
@@ -104,115 +95,66 @@ export default function CoursesScreen() {
         contentContainerStyle={list.list}
         ItemSeparatorComponent={() => <View style={list.separator} />}
         ListEmptyComponent={<Text style={list.empty}>No courses found</Text>}
-
-        renderItem={({ item }) => (
-          <View style={list.card}>
-            <Text style={content.sectionTitle}>{item.name}</Text>
-
-            {!!item.club_name && (
-              <Text style={content.body}>{item.club_name}</Text>
-            )}
-
-            <Text style={content.body}>
-              {item.holes != null ? `${item.holes} holes` : ""}
-              {item.holes != null && item.par_total != null ? " • " : ""}
-              {item.par_total != null ? `Par ${item.par_total}` : ""}
-            </Text>
-
-            {!!(item.city || item.region || item.country) && (
-              <Text style={content.body}>
-                {[item.city, item.region, item.country].filter(Boolean).join(", ")}
-              </Text>
-            )}
-
-            {!!item.postcode && (
-              <Text style={content.body}>{item.postcode}</Text>
-            )}
-
-            <View style={{ flexDirection: "row", marginTop: 12, gap: 10 }}>
-
-              <TouchableOpacity
-                onPress={() =>
-                  openMaps(
-                    [item.postcode, item.city, item.region, item.country]
-                      .filter(Boolean)
-                      .join(", ")
-                  )
-                }
-                style={{
-                  flex: 1,
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderWidth: 1,
-                  borderColor: "#2563eb",
-                  borderRadius: 8,
-                  backgroundColor: "#fff",
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#2563eb",
-                    textAlign: "center",
-                    fontWeight: "600",
-                  }}
-                >
-                  Maps
-                </Text>
-              </TouchableOpacity>
-
-              {!!item.external_booking_url && (
-                <TouchableOpacity
-                  onPress={() => Linking.openURL(item.external_booking_url!)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 10,
-                    paddingHorizontal: 12,
-                    borderWidth: 1,
-                    borderColor: "#2563eb",
-                    borderRadius: 8,
-                    backgroundColor: "#fff",
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "#2563eb",
-                      textAlign: "center",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Book
-                  </Text>
-                </TouchableOpacity>
-                
-              )}
-                            <TouchableOpacity
-                onPress={() => navigation.navigate("CourseDetail", { courseId: item.id })}
-                style={{
-                  flex: 1,
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderWidth: 1,
-                  borderColor: "#2563eb",
-                  borderRadius: 8,
-                  backgroundColor: "#fff",
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#2563eb",
-                    textAlign: "center",
-                    fontWeight: "600",
-                  }}
-                >
-                  Play
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-
         
+
+        renderItem={({ item }) => {
+          const mapAddress = [item.postcode, item.city, item.region, item.country]
+            .filter(Boolean)
+            .join(", ");
+
+          return (
+            <View style={list.card}>
+              <Text style={style.sectionTitle}>{item.name}</Text>
+
+              {!!item.club_name && (
+                <Text style={style.body}>{item.club_name}</Text>
+              )}
+
+              <Text style={style.body}>
+                {item.holes != null ? `${item.holes} holes` : ""}
+                {item.holes != null && item.par_total != null ? " • " : ""}
+                {item.par_total != null ? `Par ${item.par_total}` : ""}
+              </Text>
+
+              {!!(item.city || item.region || item.country) && (
+                <Text style={style.body}>
+                  {[item.city, item.region, item.country].filter(Boolean).join(", ")}
+                </Text>
+              )}
+
+              {!!item.postcode && (
+                <Text style={style.body}>{item.postcode}</Text>
+              )}
+
+              <View style={list.actionRow}>
+                {!!mapAddress && (
+                  <TouchableOpacity
+                    onPress={() => openMaps(mapAddress)}
+                    style={[style.outlineButton, { flex: 1, marginTop: 0 }]}
+                  >
+                    <Text style={style.outlineButtonText}>Maps</Text>
+                  </TouchableOpacity>
+                )}
+
+                {!!item.external_booking_url && (
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL(item.external_booking_url)}
+                    style={[style.outlineButton, { flex: 1, marginTop: 0 }]}
+                  >
+                    <Text style={style.outlineButtonText}>Book</Text>
+                  </TouchableOpacity>
+                )}
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("CourseDetail", { courseId: item.id })}
+                  style={[style.outlineButton, { flex: 1, marginTop: 0 }]}
+                >
+                  <Text style={style.outlineButtonText}>Play</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          );
+        }}        
       />
     </ScreenBackground>
   </View>
