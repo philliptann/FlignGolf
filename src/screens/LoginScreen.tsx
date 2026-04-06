@@ -90,10 +90,10 @@ export default function LoginScreen({ navigation }: any) {
   );
 }
 
-const fieldStyle = {
-  borderWidth: 1,
-  borderColor: "#ddd",
-  borderRadius: 10,
-  padding: 12,
-  marginBottom: 12,
-} as const;
+// const fieldStyle = {
+//   borderWidth: 1,
+//   borderColor: "#ddd",
+//   borderRadius: 10,
+//   padding: 12,
+//   marginBottom: 12,
+// } as const;

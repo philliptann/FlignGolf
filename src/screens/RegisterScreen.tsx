@@ -5,7 +5,7 @@ import { useAuth } from "../auth/AuthContext";
 import ScreenBackground from "../components/ScreenBackground";
 import ConsentModal from "../components/ConsentModal";
 import { contentStyles as styles } from "../styles/contentStyles";
-
+import { colors } from "../styles/colors";
 
 export default function RegisterScreen({ navigation }: any) {
   const { register, authBusy } = useAuth();
@@ -233,10 +233,10 @@ export default function RegisterScreen({ navigation }: any) {
   );
 }
 
-const fieldStyle = {
-  borderWidth: 1,
-  borderColor: "#ddd",
-  borderRadius: 10,
-  padding: 12,
-  marginBottom: 12,
-} as const;
+// const fieldStyle = {
+//   borderWidth: 1,
+//   borderColor: colors.border,
+//   borderRadius: 10,
+//   padding: 12,
+//   marginBottom: 12,
+// } as const;

@@ -2,6 +2,7 @@
 import { Pressable, Text, View } from "react-native";
 import { RoundListItem } from "../../../types/round";
 import RoundStatusBadge from "./RoundStatusBadge";
+import { colors } from "../../../styles/colors";
 
 interface Props {
   round: RoundListItem;
@@ -13,12 +14,12 @@ export default function RoundCard({ round, onPress }: Props) {
     <Pressable
       onPress={onPress}
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: colors.background,
         borderRadius: 12,
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: "#e5e7eb",
+        borderColor: colors.border,
       }}
     >
       <View style={{ marginBottom: 10 }}>

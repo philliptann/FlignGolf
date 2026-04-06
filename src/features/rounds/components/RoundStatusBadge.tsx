@@ -1,6 +1,7 @@
 // src/features/rounds/components/RoundStatusBadge.tsx
 import { Text, View } from "react-native";
 import { RoundStatus } from "../../../types/round";
+import { colors } from "../../../styles/colors";
 
 interface Props {
   status: RoundStatus;
@@ -25,15 +26,15 @@ function getStatusLabel(status: RoundStatus): string {
 function getStatusStyle(status: RoundStatus) {
   switch (status) {
     case "draft":
-      return { backgroundColor: "#e5e7eb",textColor: "#111827",  };
+      return { backgroundColor: colors.lightGray,textColor: colors.text,  };
     case "in_progress":
-      return { backgroundColor: "#19c37d",textColor: "#ffffff", };
+      return { backgroundColor: colors.secondary,textColor: colors.buttonText, };
     case "completed":
-      return { backgroundColor: "#15803d", textColor: "#ffffff", };
+      return { backgroundColor: colors.primary, textColor:colors.buttonText, };
     case "cancelled":
-      return { backgroundColor: "#dc2626", textColor: "#ffffff", };
+      return { backgroundColor: colors.danger, textColor: colors.buttonText, };
     default:
-      return { backgroundColor: "#e5e7eb", textColor: "#111827", };
+      return { backgroundColor: colors.lightGray, textColor: colors.text, };
   }
 }
 

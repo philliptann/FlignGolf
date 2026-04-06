@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { apiGet } from "../api/client";
 import { contentStyles as style } from "../styles/contentStyles";
 import ScreenBackground from "../components/ScreenBackground";
+import { colors } from "../styles/colors";
 
 type TeeSet = {
   id: number;

@@ -5,14 +5,15 @@ import { useNavigation } from "@react-navigation/native";
 import ScreenBackground from "../components/ScreenBackground";
 import { useAuth } from "../auth/AuthContext";
 import { contentStyles as content } from "../styles/contentStyles";
+import { colors } from "../styles/colors";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ marginBottom: 12 }}>
-      <Text style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+      <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
         {label}
       </Text>
-      <Text style={{ fontSize: 16, color: "#111" }}>{value}</Text>
+      <Text style={{ fontSize: 16, color: colors.title }}>{value}</Text>
     </View>
   );
 }
@@ -137,7 +138,7 @@ export default function ProfileScreen() {
 
         {error && <Text style={[content.error, { marginBottom: 12 }]}>{error}</Text>}
         {savedMsg && (
-          <Text style={{ marginBottom: 12, color: "#0a7", fontWeight: "600" }}>
+          <Text style={{ marginBottom: 12, color: colors.primary, fontWeight: "600" }}>
             {savedMsg}
           </Text>
         )}
@@ -154,7 +155,7 @@ export default function ProfileScreen() {
           </>
         ) : (
           <>
-            <Text style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+            <Text style={{ fontSize: 12, color:colors.muted, marginBottom: 4 }}>
               Email
             </Text>
             <TextInput
@@ -167,7 +168,7 @@ export default function ProfileScreen() {
               editable={!authBusy}
             />
 
-            <Text style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
               First name
             </Text>
             <TextInput
@@ -178,7 +179,7 @@ export default function ProfileScreen() {
               editable={!authBusy}
             />
 
-            <Text style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
               Last name
             </Text>
             <TextInput
@@ -189,7 +190,7 @@ export default function ProfileScreen() {
               editable={!authBusy}
             />
 
-            <Text style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
               Display name
             </Text>
             <TextInput
@@ -200,7 +201,7 @@ export default function ProfileScreen() {
               editable={!authBusy}
             />
 
-            <Text style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
               Country
             </Text>
             <TextInput
@@ -235,11 +236,11 @@ export default function ProfileScreen() {
         <Pressable
           onPress={() => navigation.navigate("HandicapHistory")}
           style={[
-            content.secondaryButton,
+            content.primaryButton,
             { marginTop: 20 },
           ]}
         >
-          <Text style={content.secondaryButtonText}>
+          <Text style={content.primaryButtonText}>
             Handicap History
           </Text>
         </Pressable>

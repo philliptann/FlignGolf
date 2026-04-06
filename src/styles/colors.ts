@@ -1,7 +1,7 @@
 //src/styles/colors.ts
 
 export const colors = {
-  primary: "#1F6F4A",
+  primary: "#238457",
   buttonText:"#fff",
   secondary: "#19c37d",
   text: "#111827",
@@ -19,4 +19,5 @@ export const colors = {
   buttonOutlineDisabled: "#bbb",
   fillterPillText:"#111827",
   fillterPillTextInactive:"#ffffff",
+ 
 };

@@ -3,6 +3,7 @@ import { RoundDetail, RoundListApiItem, RoundListItem } from "../../../types/rou
 
 export interface PlayScreenHole {
   holeNumber: number;
+  yardage: number | null;
   playerScores: {
     holeScoreId: number;
     playerId: number;
@@ -40,6 +41,7 @@ export function mapRoundDetailToPlayScreen(round: RoundDetail): PlayScreenRound 
   const holes = (round.holes ?? [])
     .map((hole) => ({
       holeNumber: hole.number,
+      yardage: hole.yardage ?? null,
       playerScores: (hole.scores ?? []).map((score) => ({
         holeScoreId: score.round_hole_score_id,
         playerId: score.round_player_id,

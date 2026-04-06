@@ -1,5 +1,6 @@
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { CONSENT_TEXT } from "../content/consentText";
+import { colors } from "../styles/colors";
 
 type Props = {
   visible: boolean;
@@ -19,7 +20,7 @@ export default function ConsentModal({ visible, onClose, onAccept }: Props) {
       >
         <View
           style={{
-            backgroundColor: "#fff",
+            backgroundColor: colors.background,
             borderTopLeftRadius: 16,
             borderTopRightRadius: 16,
             padding: 16,
@@ -31,7 +32,7 @@ export default function ConsentModal({ visible, onClose, onAccept }: Props) {
           </Text>
 
           <ScrollView style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 14, lineHeight: 20, color: "#333" }}>
+            <Text style={{ fontSize: 14, lineHeight: 20, color: colors.body }}>
               {CONSENT_TEXT}
             </Text>
           </ScrollView>
@@ -44,7 +45,7 @@ export default function ConsentModal({ visible, onClose, onAccept }: Props) {
                 padding: 14,
                 borderRadius: 10,
                 borderWidth: 1,
-                borderColor: "#ddd",
+                borderColor: colors.border,
                 alignItems: "center",
               }}
             >
@@ -60,11 +61,11 @@ export default function ConsentModal({ visible, onClose, onAccept }: Props) {
                 flex: 1,
                 padding: 14,
                 borderRadius: 10,
-                backgroundColor: "#0a7",
+                backgroundColor: colors.secondary,
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: "#fff", fontWeight: "600" }}>I Accept</Text>
+              <Text style={{ color: colors.buttonText, fontWeight: "600" }}>I Accept</Text>
             </Pressable>
           </View>
         </View>

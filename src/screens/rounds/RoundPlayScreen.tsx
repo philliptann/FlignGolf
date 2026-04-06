@@ -348,6 +348,7 @@ export default function RoundPlayScreen() {
 
           <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 12 }}>
             Par {currentHole.playerScores[0]?.par ?? "-"}
+            {currentHole.yardage != null ? ` • ${currentHole.yardage} yds` : ""}
           </Text>
 
           {currentHole.playerScores.map((score, index) => {

@@ -1,6 +1,7 @@
 // components/HomeHeaderTitle.tsx
 import { Text, View } from "react-native";
 import { useAuth } from "../auth/AuthContext";
+import { colors } from "../styles/colors";
 
 export default function HomeHeaderTitle() {
   const { user } = useAuth();
@@ -17,7 +18,7 @@ export default function HomeHeaderTitle() {
         Home
       </Text>
       {name ? (
-        <Text style={{ fontSize: 13, color: "#666" }}>
+        <Text style={{ fontSize: 13, color:colors.muted }}>
           Hello {name}
         </Text>
       ) : null}
